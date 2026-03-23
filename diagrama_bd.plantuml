@@ -1,0 +1,552 @@
+@startuml
+hide methods
+hide stereotypes
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+' =========================
+' ENUMS
+' =========================
+enum EstadoVenta {
+  NEGOCIACION
+  PENDIENTE
+  CERRADA
+}
+
+enum RolEmpleado {
+  ADMINISTRADOR
+  CAJERO
+  VETERINARIO
+  ASISTENTE
+  CONDUCTOR
+}
+
+enum TipoAnimal {
+  PERRO
+}
+
+enum NaturalezaContable {
+  DEBITO
+  CREDITO
+}
+
+enum StatusEntidad {
+  ACTIVO
+  INACTIVO
+}
+
+enum PeriodoNomina {
+  MES
+  QUINCENA
+}
+
+enum TipoConcepto {
+  INGRESO
+  DESCUENTO
+}
+
+enum MetodoPago {
+  EFECTIVO
+  TARJETA
+  NOTA_CREDITO
+  TRANSFERENCIA
+}
+
+enum UnidadMedida {
+  LIBRA
+  QUINTAL
+  KILOGRAMO
+  CC
+  LITRO
+  MILILITRO
+  UNIDAD
+}
+
+enum CategoriaProducto {
+  ALIMENTO
+  MEDICAMENTO
+  PRODUCTOS_VARIOS
+  SERVICIO
+}
+
+enum EstadoTransporte {
+  PROGRAMADO
+  EN_TRANSITO
+  COMPLETADO
+  FALLIDO
+  CANCELADO
+}
+
+' =========================
+' TABLAS PRINCIPALES
+' =========================
+
+entity "Persona" as persona {
+  * id_persona : BIGINT <<PK>>
+  --
+  nombre : VARCHAR(100)
+  cedula : VARCHAR(20)
+  direccion : VARCHAR(255)
+  telefono : VARCHAR(20)
+}
+
+entity "Usuario" as usuario {
+  * id_usuario : BIGINT <<PK>>
+  --
+  username : VARCHAR(60) <<UK>>
+  password : VARCHAR(255)
+}
+
+entity "Empleado" as empleado {
+  * id_empleado : BIGINT <<PK>>
+  --
+  * id_persona : BIGINT <<FK>>
+  id_usuario : BIGINT <<FK>>
+  salario : DECIMAL(12,2)
+}
+
+entity "EmpleadoRol" as empleado_rol {
+  * id_empleado_rol <<PK>>
+  --
+  * id_empleado : BIGINT <<FK>>
+  * rol : RolEmpleado
+}
+
+entity "TipoCliente" as tipo_cliente {
+  * id_tipo_cliente : BIGINT <<PK>>
+  --
+  nombre_tipo_cliente : VARCHAR(60)
+  descripcion : VARCHAR(255)
+  descuento : DECIMAL(5,2)
+}
+
+entity "Cliente" as cliente {
+  * id_cliente : BIGINT <<PK>>
+  --
+  id_persona : BIGINT <<FK>>
+  id_tipo_cliente : BIGINT <<FK>>
+}
+
+entity "Proveedor" as proveedor {
+  * id_proveedor : BIGINT <<PK>>
+  --
+  rnc : VARCHAR(20)
+  nombre : VARCHAR(120)
+  direccion : VARCHAR(255)
+  telefono : VARCHAR(20)
+  status : VARCHAR(20)
+  id_persona_contacto : BIGINT <<FK>>
+}
+
+entity "Mascota" as mascota {
+  * id_mascota : BIGINT <<PK>>
+  --
+  id_cliente : BIGINT <<FK>>
+  nombre : VARCHAR(100)
+  fecha_nacim : DATE
+  tipo_animal : VARCHAR(30)
+  raza : VARCHAR(80)
+  sexo : VARCHAR(20)
+}
+
+entity "Producto" as producto {
+  * id_producto : BIGINT <<PK>>
+  --
+  nombre : VARCHAR(120)
+  precio_unitario : DECIMAL(12,2)
+  categoria : VARCHAR(40)
+  unidad_medida : VARCHAR(30)
+}
+
+entity "Lote" as lote {
+  * id_lote : BIGINT <<PK>>
+  --
+  id_producto : BIGINT <<FK>>
+  fecha_vencimiento : DATE
+}
+
+entity "Almacen" as almacen {
+  * id_almacen : BIGINT <<PK>>
+  --
+  nombre : VARCHAR(100)
+  direccion : VARCHAR(255)
+}
+
+entity "Inventario" as inventario {
+  * id_inventario : BIGINT <<PK>>
+  --
+  id_almacen : BIGINT <<FK>>
+  id_lote : BIGINT <<FK>>
+  cantidad_actual : INT
+}
+
+entity "Vehiculo" as vehiculo {
+  * id_vehiculo : BIGINT <<PK>>
+  --
+  placa : VARCHAR(20)
+  modelo : VARCHAR(80)
+  capacidad_carga : DECIMAL(12,2)
+}
+
+entity "Ruta" as ruta {
+  * id_ruta : BIGINT <<PK>>
+  --
+  distancia_km : DECIMAL(12,2)
+  tiempo_estimado : VARCHAR(50)
+}
+
+entity "RutaParada" as ruta_parada {
+  * id_ruta_parada : BIGINT <<PK>>
+  --
+  id_ruta : BIGINT <<FK>>
+  parada : VARCHAR(150)
+  orden : INT
+}
+
+entity "Transporte" as transporte {
+  * id_transporte : BIGINT <<PK>>
+  --
+  fecha_hora_salida : DATETIME
+  fecha_hora_llegada : DATETIME
+  id_vehiculo : BIGINT <<FK>>
+  id_conductor : BIGINT <<FK>>
+  id_ruta : BIGINT <<FK>>
+  estado : VARCHAR(30)
+  descuento : DECIMAL(12,2)
+}
+
+entity "CuentaContable" as cuenta_contable {
+  * id_cuenta : BIGINT <<PK>>
+  --
+  codigo_cuenta : VARCHAR(30) <<UK>>
+  nombre : VARCHAR(120)
+  naturaleza : VARCHAR(20)
+  tipo : VARCHAR(50)
+}
+
+entity "GastoOperativo" as gasto_operativo {
+  * id_gasto : BIGINT <<PK>>
+  --
+  id_cuenta : BIGINT <<FK>>
+  fecha : DATE
+  monto : DECIMAL(12,2)
+  comprobante_fiscal : VARCHAR(50)
+  notas : VARCHAR(255)
+  id_transporte : BIGINT <<FK, nullable>>
+  id_realizacion_servicio : BIGINT <<FK, nullable>>
+}
+
+entity "AsientoContable" as asiento_contable {
+  * id_asiento : BIGINT <<PK>>
+  --
+  fecha : DATE
+  concepto : VARCHAR(255)
+}
+
+entity "DetalleAsiento" as detalle_asiento {
+  * id_detalle_asiento : BIGINT <<PK>>
+  --
+  id_asiento : BIGINT <<FK>>
+  id_cuenta : BIGINT <<FK>>
+  tipo_movimiento : VARCHAR(20)
+  monto : DECIMAL(12,2)
+}
+
+entity "Nomina" as nomina {
+  * id_nomina <<PK>>
+  --
+  * id_reporte_nomina <<FK>>
+  * id_empleado : BIGINT <<FK>>
+  fecha_emision : DATE
+  periodo : PeriodoNomina
+  total_devengado : DECIMAL(12,2)
+  total_deducciones : DECIMAL(12,2)
+}
+
+entity "DetalleNomina" as detalle_nomina {
+  * id_detalle_nomina : BIGINT <<PK>>
+  --
+  * id_nomina : BIGINT <<FK>>
+  descripcion : VARCHAR(255)
+  tipo : TipoConcepto
+  monto : DECIMAL(12,2)
+  cantidad : DECIMAL(12,2)
+}
+
+entity "ReporteNomina" as reporte_nomina {
+  * id_reporte_nomina : BIGINT <<PK>>
+  --
+  fecha_reporte : DATE
+  periodo_descripcion : VARCHAR(100)
+  total_general_neto : DECIMAL(12,2)
+  total_general_retenciones : DECIMAL(12,2)
+}
+
+entity "Compra" as compra {
+  * id_compra : BIGINT <<PK>>
+  --
+  fecha_hora_compra : DATETIME
+  id_proveedor : BIGINT <<FK>>
+  total : DECIMAL(12,2)
+  fecha_vencimiento_pago : DATETIME
+}
+
+entity "DetalleCompra" as detalle_compra {
+  * id_detalle_compra : BIGINT <<PK>>
+  --
+  id_compra : BIGINT <<FK>>
+  id_lote : BIGINT <<FK>>
+  cantidad : BIGINT
+  precio_unitario_compra : DECIMAL(12,2)
+  impuesto : DECIMAL(12,2)
+}
+
+entity "Recepcion" as recepcion {
+  * id_recepcion : BIGINT <<PK>>
+  --
+  fecha_hora_llegada_programada : DATETIME
+  id_transporte : BIGINT <<FK>>
+  fecha_hora_recepcion : DATETIME
+}
+
+entity "RecepcionCompra" as recepcion_compra {
+  * id_recepcion : BIGINT <<FK>>
+  * id_compra : BIGINT <<FK>>
+}
+
+entity "DetalleRecepcion" as detalle_recepcion {
+  * id_detalle_recepcion : BIGINT <<PK>>
+  --
+  id_recepcion : BIGINT <<FK>>
+  id_detalle_compra : BIGINT <<FK>>
+  cantidad : BIGINT
+  id_almacen : BIGINT <<FK>>
+}
+
+entity "Transferencia" as transferencia {
+  * id_transferencia : BIGINT <<PK>>
+  --
+  fecha_hora_salida_programada : DATETIME
+  fecha_hora_llegada_programada : DATETIME
+  id_transporte : BIGINT <<FK>>
+  id_almacen_origen : BIGINT <<FK>>
+  id_almacen_destino : BIGINT <<FK>>
+}
+
+entity "DetalleTransferencia" as detalle_transferencia {
+  * id_detalle_transferencia : BIGINT <<PK>>
+  --
+  id_transferencia : BIGINT <<FK>>
+  id_lote : BIGINT <<FK>>
+  cantidad : BIGINT
+}
+
+entity "Venta" as venta {
+  * id_venta : BIGINT <<PK>>
+  --
+  fecha_hora_venta : DATETIME
+  monto_total : DECIMAL(12,2)
+  estado : VARCHAR(20)
+  id_cliente : BIGINT <<FK>>
+  id_vendedor : BIGINT <<FK>>
+  comprobante_fiscal : VARCHAR(50)
+  aplica_descuento_venta : BOOLEAN
+  fecha_vencimiento_pago : DATETIME
+}
+
+entity "DetalleVenta" as detalle_venta {
+  * id_detalle_venta : BIGINT <<PK>>
+  --
+  id_venta : BIGINT <<FK>>
+  id_producto : BIGINT <<FK>>
+  cantidad : BIGINT
+  precio_unitario_venta : DECIMAL(12,2)
+  impuesto : DECIMAL(12,2)
+}
+
+entity "Despacho" as despacho {
+  * id_despacho : BIGINT <<PK>>
+  --
+  fecha_hora_salida_programada : DATETIME
+  id_transporte : BIGINT <<FK>>
+  fecha_hora_entrega : DATETIME
+}
+
+entity "DespachoVenta" as despacho_venta {
+  * id_despacho : BIGINT <<FK>>
+  * id_venta : BIGINT <<FK>>
+}
+
+entity "DetalleDespacho" as detalle_despacho {
+  * id_detalle_despacho : BIGINT <<PK>>
+  --
+  id_despacho : BIGINT <<FK>>
+  id_detalle_venta : BIGINT <<FK>>
+  id_lote : BIGINT <<FK>>
+  id_almacen : BIGINT <<FK>>
+  cantidad : BIGINT
+}
+
+entity "NotaDeCredito" as nota_credito {
+  * id_nota_credito : BIGINT <<PK>>
+  --
+  id_cliente : BIGINT <<FK>>
+  monto : DECIMAL(12,2)
+}
+
+entity "DevolucionVenta" as devolucion_venta {
+  * id_devolucion_venta : BIGINT <<PK>>
+  --
+  fecha_hora : DATETIME
+  id_cliente : BIGINT <<FK>>
+  razon_devolucion : VARCHAR(255)
+  id_empleado : BIGINT <<FK>>
+}
+
+entity "DetalleDevVenta" as detalle_dev_venta {
+  * id_detalle_dev_venta : BIGINT <<PK>>
+  --
+  id_devolucion_venta : BIGINT <<FK>>
+  cantidad_devuelta : INT
+  id_detalle_venta : BIGINT <<FK>>
+  id_lote : BIGINT <<FK>>
+  id_almacen_entrada : BIGINT <<FK>>
+}
+
+entity "Cobro" as cobro {
+  * id_cobro : BIGINT <<PK>>
+  --
+  id_cliente : BIGINT <<FK>>
+  monto_total : DECIMAL(12,2)
+  metodo_pago : VARCHAR(30)
+}
+
+entity "DetalleCobro" as detalle_cobro {
+  * id_detalle_cobro : BIGINT <<PK>>
+  --
+  id_cobro : BIGINT <<FK>>
+  id_venta : BIGINT <<FK, nullable>>
+  id_nota_credito : BIGINT <<FK, nullable>>
+  monto_aplicado : DECIMAL(12,2)
+}
+
+entity "Pago" as pago {
+  * id_pago : BIGINT <<PK>>
+  --
+  id_proveedor : BIGINT <<FK>>
+  monto_total : DECIMAL(12,2)
+  metodo_pago : VARCHAR(30)
+}
+
+entity "Cita" as cita {
+  * id_cita : BIGINT <<PK>>
+  --
+  id_cliente : BIGINT <<FK>>
+  id_mascota : BIGINT <<FK>>
+  id_veterinario : BIGINT <<FK>>
+  fecha_hora : DATETIME
+  realizado : BOOLEAN
+  id_servicio : BIGINT <<FK>>
+}
+
+entity "RealizacionServicio" as realizacion_servicio {
+  * id_realizacion_servicio : BIGINT <<PK>>
+  --
+  id_cita : BIGINT <<FK>>
+}
+
+' =========================
+' RELACIONES
+' =========================
+
+persona ||--o| empleado
+persona ||--o| cliente
+persona ||--o{ proveedor : contacto_de
+
+usuario |o--|| empleado
+empleado ||--o{ empleado_rol
+tipo_cliente ||--o{ cliente
+
+cliente ||--o{ mascota
+cliente ||--o{ venta
+cliente ||--o{ cita
+cliente ||--o{ nota_credito
+cliente ||--o{ cobro
+cliente ||--o{ devolucion_venta
+
+empleado ||--o{ venta : vendedor
+empleado ||--o{ cita : veterinario
+empleado ||--o{ devolucion_venta
+empleado ||--o{ nomina
+empleado ||--o{ transporte : conductor
+
+producto ||--o{ lote
+producto ||--o{ detalle_venta
+producto ||--o{ cita : servicio
+
+almacen ||--o{ inventario
+lote ||--o{ inventario
+
+ruta ||--o{ ruta_parada
+vehiculo ||--o{ transporte
+ruta ||--o{ transporte
+
+cuenta_contable ||--o{ gasto_operativo
+cuenta_contable ||--o{ detalle_asiento
+asiento_contable ||--o{ detalle_asiento
+
+transporte ||--o{ gasto_operativo
+cita ||--o| realizacion_servicio
+realizacion_servicio ||--o{ gasto_operativo
+
+nomina ||--|{ detalle_nomina
+reporte_nomina ||--|{ nomina
+
+proveedor ||--o{ compra
+compra ||--o{ detalle_compra
+
+transporte ||--o{ recepcion
+recepcion ||--o{ detalle_recepcion
+detalle_compra ||--o{ detalle_recepcion
+almacen ||--o{ detalle_recepcion
+recepcion ||--o{ recepcion_compra
+compra ||--o{ recepcion_compra
+
+transporte ||--o{ transferencia
+almacen ||--o{ transferencia : origen
+almacen ||--o{ transferencia : destino
+transferencia ||--o{ detalle_transferencia
+lote ||--o{ detalle_transferencia
+
+venta ||--o{ detalle_venta
+transporte ||--o{ despacho
+despacho ||--o{ detalle_despacho
+detalle_venta ||--o{ detalle_despacho
+lote ||--o{ detalle_despacho
+almacen ||--o{ detalle_despacho
+despacho ||--o{ despacho_venta
+venta ||--o{ despacho_venta
+
+devolucion_venta ||--o{ detalle_dev_venta
+detalle_venta ||--o{ detalle_dev_venta
+lote ||--o{ detalle_dev_venta
+almacen ||--o{ detalle_dev_venta : almacen_entrada
+
+cobro ||--o{ detalle_cobro
+venta ||--o{ detalle_cobro
+nota_credito ||--o{ detalle_cobro
+
+proveedor ||--o{ pago
+
+mascota ||--o{ cita
+
+
+
+' Relaciones de entidades a enums
+
+nomina .. PeriodoNomina
+detalle_nomina .. TipoConcepto
+
+empleado_rol .. RolEmpleado
+
+@enduml
