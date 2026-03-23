@@ -123,7 +123,7 @@ entity "TipoCliente" as tipo_cliente {
 entity "Cliente" as cliente {
   * id_cliente : BIGINT <<PK>>
   --
-  id_persona : BIGINT <<FK>>
+  * id_persona : BIGINT <<FK>>
   id_tipo_cliente : BIGINT <<FK>>
 }
 
