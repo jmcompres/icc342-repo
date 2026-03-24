@@ -134,7 +134,7 @@ entity "Proveedor" as proveedor {
   nombre : VARCHAR(120)
   direccion : VARCHAR(255)
   telefono : VARCHAR(20)
-  status : VARCHAR(20)
+  * status : StatusEntidad
   id_persona_contacto : BIGINT <<FK>>
 }
 
@@ -144,7 +144,7 @@ entity "Mascota" as mascota {
   id_cliente : BIGINT <<FK>>
   nombre : VARCHAR(100)
   fecha_nacim : DATE
-  tipo_animal : VARCHAR(30)
+  * tipo_animal : TipoAnimal
   raza : VARCHAR(80)
   sexo : VARCHAR(20)
 }
@@ -154,8 +154,8 @@ entity "Producto" as producto {
   --
   nombre : VARCHAR(120)
   precio_unitario : DECIMAL(12,2)
-  categoria : VARCHAR(40)
-  unidad_medida : VARCHAR(30)
+  * categoria : CategoriaProducto
+  * unidad_medida : UnidadMedida
 }
 
 entity "Lote" as lote {
@@ -211,7 +211,7 @@ entity "Transporte" as transporte {
   id_vehiculo : BIGINT <<FK>>
   id_conductor : BIGINT <<FK>>
   id_ruta : BIGINT <<FK>>
-  estado : VARCHAR(30)
+  * estado : EstadoTransporte
   descuento : DECIMAL(12,2)
 }
 
@@ -220,7 +220,7 @@ entity "CuentaContable" as cuenta_contable {
   --
   codigo_cuenta : VARCHAR(30) <<UK>>
   nombre : VARCHAR(120)
-  naturaleza : VARCHAR(20)
+  * naturaleza : NaturalezaContable
   tipo : VARCHAR(50)
 }
 
@@ -248,7 +248,7 @@ entity "DetalleAsiento" as detalle_asiento {
   --
   id_asiento : BIGINT <<FK>>
   id_cuenta : BIGINT <<FK>>
-  tipo_movimiento : VARCHAR(20)
+  * tipo_movimiento : NaturalezaContable
   monto : DECIMAL(12,2)
 }
 
@@ -258,7 +258,7 @@ entity "Nomina" as nomina {
   * id_reporte_nomina <<FK>>
   * id_empleado : BIGINT <<FK>>
   fecha_emision : DATE
-  periodo : PeriodoNomina
+  * periodo : PeriodoNomina
   total_devengado : DECIMAL(12,2)
   total_deducciones : DECIMAL(12,2)
 }
@@ -268,7 +268,7 @@ entity "DetalleNomina" as detalle_nomina {
   --
   * id_nomina : BIGINT <<FK>>
   descripcion : VARCHAR(255)
-  tipo : TipoConcepto
+  * tipo : TipoConcepto
   monto : DECIMAL(12,2)
   cantidad : DECIMAL(12,2)
 }
@@ -346,7 +346,7 @@ entity "Venta" as venta {
   --
   fecha_hora_venta : DATETIME
   monto_total : DECIMAL(12,2)
-  estado : VARCHAR(20)
+  * estado : EstadoVenta
   id_cliente : BIGINT <<FK>>
   id_vendedor : BIGINT <<FK>>
   comprobante_fiscal : VARCHAR(50)
@@ -418,7 +418,7 @@ entity "Cobro" as cobro {
   --
   id_cliente : BIGINT <<FK>>
   monto_total : DECIMAL(12,2)
-  metodo_pago : VARCHAR(30)
+  * metodo_pago : MetodoPago
 }
 
 entity "DetalleCobro" as detalle_cobro {
@@ -435,7 +435,7 @@ entity "Pago" as pago {
   --
   id_proveedor : BIGINT <<FK>>
   monto_total : DECIMAL(12,2)
-  metodo_pago : VARCHAR(30)
+  * metodo_pago : MetodoPago
 }
 
 entity "Cita" as cita {
@@ -546,5 +546,23 @@ nomina .. PeriodoNomina
 detalle_nomina .. TipoConcepto
 
 empleado_rol .. RolEmpleado
+
+proveedor .. StatusEntidad
+
+pago .. MetodoPago
+cobro .. MetodoPago
+
+mascota .. TipoAnimal
+
+venta .. EstadoVenta
+
+producto .. CategoriaProducto
+producto .. UnidadMedida
+
+transporte .. EstadoTransporte
+
+cuenta_contable .. NaturalezaContable
+
+detalle_asiento .. NaturalezaContable
 
 @enduml
