@@ -461,10 +461,9 @@ entity "RealizacionServicio" as realizacion_servicio {
 
 persona ||--o| empleado
 persona ||--o| cliente
-persona ||--o{ proveedor : contacto_de
 
 usuario |o--|| empleado
-empleado ||--o{ empleado_rol
+empleado ||--|{ empleado_rol
 tipo_cliente ||--o{ cliente
 
 cliente ||--o{ mascota
@@ -485,9 +484,9 @@ producto ||--o{ detalle_venta
 producto ||--o{ cita : servicio
 
 almacen ||--o{ inventario
-lote ||--o{ inventario
+lote ||--|{ inventario
 
-ruta ||--o{ ruta_parada
+ruta ||--|{ ruta_parada
 vehiculo ||--o{ transporte
 ruta ||--o{ transporte
 
@@ -503,10 +502,10 @@ nomina ||--|{ detalle_nomina
 reporte_nomina ||--|{ nomina
 
 proveedor ||--o{ compra
-compra ||--o{ detalle_compra
+compra ||--|{ detalle_compra
 
 transporte ||--o{ recepcion
-recepcion ||--o{ detalle_recepcion
+recepcion ||--|{ detalle_recepcion
 detalle_compra ||--o{ detalle_recepcion
 almacen ||--o{ detalle_recepcion
 recepcion ||--o{ recepcion_compra
@@ -515,26 +514,25 @@ compra ||--o{ recepcion_compra
 transporte ||--o{ transferencia
 almacen ||--o{ transferencia : origen
 almacen ||--o{ transferencia : destino
-transferencia ||--o{ detalle_transferencia
+transferencia ||--|{ detalle_transferencia
 lote ||--o{ detalle_transferencia
 
-venta ||--o{ detalle_venta
+venta ||--|{ detalle_venta
 transporte ||--o{ despacho
-despacho ||--o{ detalle_despacho
+despacho ||--|{ detalle_despacho
 detalle_venta ||--o{ detalle_despacho
 lote ||--o{ detalle_despacho
 almacen ||--o{ detalle_despacho
 despacho ||--o{ despacho_venta
 venta ||--o{ despacho_venta
 
-devolucion_venta ||--o{ detalle_dev_venta
+devolucion_venta ||--|{ detalle_dev_venta
 detalle_venta ||--o{ detalle_dev_venta
 lote ||--o{ detalle_dev_venta
 almacen ||--o{ detalle_dev_venta : almacen_entrada
 
-cobro ||--o{ detalle_cobro
+cobro ||--|{ detalle_cobro
 venta ||--o{ detalle_cobro
-nota_credito ||--o{ detalle_cobro
 
 proveedor ||--o{ pago
 
