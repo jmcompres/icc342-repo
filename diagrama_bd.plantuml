@@ -135,7 +135,7 @@ entity "Proveedor" as proveedor {
   direccion : VARCHAR(255)
   telefono : VARCHAR(20)
   status : VARCHAR(20)
-  id_persona_contacto : BIGINT <<FK>>
+  num_personaContacto : VARCHAR(20)
 }
 
 entity "Mascota" as mascota {
@@ -232,8 +232,14 @@ entity "GastoOperativo" as gasto_operativo {
   monto : DECIMAL(12,2)
   comprobante_fiscal : VARCHAR(50)
   notas : VARCHAR(255)
-  id_transporte : BIGINT <<FK, nullable>>
-  id_realizacion_servicio : BIGINT <<FK, nullable>>
+}
+
+entity "GastoTransporte" as gasto_transporte {
+  * id_gasto_transporte : BIGINT <<PK>>
+  --
+  id_transporte : BIGINT <<FK>>
+  id_gasto : BIGINT <<FK>>
+
 }
 
 entity "AsientoContable" as asiento_contable {
@@ -421,14 +427,6 @@ entity "Cobro" as cobro {
   metodo_pago : VARCHAR(30)
 }
 
-entity "DetalleCobro" as detalle_cobro {
-  * id_detalle_cobro : BIGINT <<PK>>
-  --
-  id_cobro : BIGINT <<FK>>
-  id_venta : BIGINT <<FK, nullable>>
-  id_nota_credito : BIGINT <<FK, nullable>>
-  monto_aplicado : DECIMAL(12,2)
-}
 
 entity "Pago" as pago {
   * id_pago : BIGINT <<PK>>
@@ -453,6 +451,13 @@ entity "RealizacionServicio" as realizacion_servicio {
   * id_realizacion_servicio : BIGINT <<PK>>
   --
   id_cita : BIGINT <<FK>>
+}
+
+entity "GastoRealizacionServicio" as gasto_realizacion_servicio {
+  * id_gasto_realizacion_servicio : BIGINT <<PK>>
+  --
+  id_gasto : BIGINT <<FK>>
+  id_realizacion_servicio : BIGINT <<FK>>
 }
 
 ' =========================
@@ -496,8 +501,11 @@ cuenta_contable ||--o{ detalle_asiento
 asiento_contable ||--o{ detalle_asiento
 
 transporte ||--o{ gasto_operativo
+transporte ||--o{ gasto_transporte
+gasto_operativo ||--o{ gasto_transporte
 cita ||--o| realizacion_servicio
-realizacion_servicio ||--o{ gasto_operativo
+realizacion_servicio ||--o{ gasto_realizacion_servicio
+gasto_operativo ||--o{ gasto_realizacion_servicio
 
 nomina ||--|{ detalle_nomina
 reporte_nomina ||--|{ nomina
@@ -532,9 +540,6 @@ detalle_venta ||--o{ detalle_dev_venta
 lote ||--o{ detalle_dev_venta
 almacen ||--o{ detalle_dev_venta : almacen_entrada
 
-cobro ||--o{ detalle_cobro
-venta ||--o{ detalle_cobro
-nota_credito ||--o{ detalle_cobro
 
 proveedor ||--o{ pago
 
