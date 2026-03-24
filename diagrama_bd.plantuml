@@ -134,7 +134,7 @@ entity "Proveedor" as proveedor {
   nombre : VARCHAR(120)
   direccion : VARCHAR(255)
   telefono : VARCHAR(20)
-  status : VARCHAR(20)
+  * status : StatusEntidad
   num_personaContacto : VARCHAR(20)
 }
 
@@ -144,7 +144,7 @@ entity "Mascota" as mascota {
   id_cliente : BIGINT <<FK>>
   nombre : VARCHAR(100)
   fecha_nacim : DATE
-  tipo_animal : VARCHAR(30)
+  * tipo_animal : TipoAnimal
   raza : VARCHAR(80)
   sexo : VARCHAR(20)
 }
@@ -154,8 +154,8 @@ entity "Producto" as producto {
   --
   nombre : VARCHAR(120)
   precio_unitario : DECIMAL(12,2)
-  categoria : VARCHAR(40)
-  unidad_medida : VARCHAR(30)
+  * categoria : CategoriaProducto
+  * unidad_medida : UnidadMedida
 }
 
 entity "Lote" as lote {
@@ -211,7 +211,7 @@ entity "Transporte" as transporte {
   id_vehiculo : BIGINT <<FK>>
   id_conductor : BIGINT <<FK>>
   id_ruta : BIGINT <<FK>>
-  estado : VARCHAR(30)
+  * estado : EstadoTransporte
   descuento : DECIMAL(12,2)
 }
 
@@ -220,7 +220,7 @@ entity "CuentaContable" as cuenta_contable {
   --
   codigo_cuenta : VARCHAR(30) <<UK>>
   nombre : VARCHAR(120)
-  naturaleza : VARCHAR(20)
+  * naturaleza : NaturalezaContable
   tipo : VARCHAR(50)
 }
 
@@ -254,7 +254,7 @@ entity "DetalleAsiento" as detalle_asiento {
   --
   id_asiento : BIGINT <<FK>>
   id_cuenta : BIGINT <<FK>>
-  tipo_movimiento : VARCHAR(20)
+  * tipo_movimiento : NaturalezaContable
   monto : DECIMAL(12,2)
 }
 
@@ -264,7 +264,7 @@ entity "Nomina" as nomina {
   * id_reporte_nomina <<FK>>
   * id_empleado : BIGINT <<FK>>
   fecha_emision : DATE
-  periodo : PeriodoNomina
+  * periodo : PeriodoNomina
   total_devengado : DECIMAL(12,2)
   total_deducciones : DECIMAL(12,2)
 }
@@ -274,7 +274,7 @@ entity "DetalleNomina" as detalle_nomina {
   --
   * id_nomina : BIGINT <<FK>>
   descripcion : VARCHAR(255)
-  tipo : TipoConcepto
+  * tipo : TipoConcepto
   monto : DECIMAL(12,2)
   cantidad : DECIMAL(12,2)
 }
@@ -352,7 +352,7 @@ entity "Venta" as venta {
   --
   fecha_hora_venta : DATETIME
   monto_total : DECIMAL(12,2)
-  estado : VARCHAR(20)
+  * estado : EstadoVenta
   id_cliente : BIGINT <<FK>>
   id_vendedor : BIGINT <<FK>>
   comprobante_fiscal : VARCHAR(50)
@@ -424,7 +424,7 @@ entity "Cobro" as cobro {
   --
   id_cliente : BIGINT <<FK>>
   monto_total : DECIMAL(12,2)
-  metodo_pago : VARCHAR(30)
+  * metodo_pago : MetodoPago
 }
 
 
@@ -433,7 +433,7 @@ entity "Pago" as pago {
   --
   id_proveedor : BIGINT <<FK>>
   monto_total : DECIMAL(12,2)
-  metodo_pago : VARCHAR(30)
+  * metodo_pago : MetodoPago
 }
 
 entity "Cita" as cita {
@@ -466,10 +466,9 @@ entity "GastoRealizacionServicio" as gasto_realizacion_servicio {
 
 persona ||--o| empleado
 persona ||--o| cliente
-persona ||--o{ proveedor : contacto_de
 
 usuario |o--|| empleado
-empleado ||--o{ empleado_rol
+empleado ||--|{ empleado_rol
 tipo_cliente ||--o{ cliente
 
 cliente ||--o{ mascota
@@ -490,9 +489,9 @@ producto ||--o{ detalle_venta
 producto ||--o{ cita : servicio
 
 almacen ||--o{ inventario
-lote ||--o{ inventario
+lote ||--|{ inventario
 
-ruta ||--o{ ruta_parada
+ruta ||--|{ ruta_parada
 vehiculo ||--o{ transporte
 ruta ||--o{ transporte
 
@@ -511,10 +510,10 @@ nomina ||--|{ detalle_nomina
 reporte_nomina ||--|{ nomina
 
 proveedor ||--o{ compra
-compra ||--o{ detalle_compra
+compra ||--|{ detalle_compra
 
 transporte ||--o{ recepcion
-recepcion ||--o{ detalle_recepcion
+recepcion ||--|{ detalle_recepcion
 detalle_compra ||--o{ detalle_recepcion
 almacen ||--o{ detalle_recepcion
 recepcion ||--o{ recepcion_compra
@@ -523,19 +522,19 @@ compra ||--o{ recepcion_compra
 transporte ||--o{ transferencia
 almacen ||--o{ transferencia : origen
 almacen ||--o{ transferencia : destino
-transferencia ||--o{ detalle_transferencia
+transferencia ||--|{ detalle_transferencia
 lote ||--o{ detalle_transferencia
 
-venta ||--o{ detalle_venta
+venta ||--|{ detalle_venta
 transporte ||--o{ despacho
-despacho ||--o{ detalle_despacho
+despacho ||--|{ detalle_despacho
 detalle_venta ||--o{ detalle_despacho
 lote ||--o{ detalle_despacho
 almacen ||--o{ detalle_despacho
 despacho ||--o{ despacho_venta
 venta ||--o{ despacho_venta
 
-devolucion_venta ||--o{ detalle_dev_venta
+devolucion_venta ||--|{ detalle_dev_venta
 detalle_venta ||--o{ detalle_dev_venta
 lote ||--o{ detalle_dev_venta
 almacen ||--o{ detalle_dev_venta : almacen_entrada
@@ -553,5 +552,23 @@ nomina .. PeriodoNomina
 detalle_nomina .. TipoConcepto
 
 empleado_rol .. RolEmpleado
+
+proveedor .. StatusEntidad
+
+pago .. MetodoPago
+cobro .. MetodoPago
+
+mascota .. TipoAnimal
+
+venta .. EstadoVenta
+
+producto .. CategoriaProducto
+producto .. UnidadMedida
+
+transporte .. EstadoTransporte
+
+cuenta_contable .. NaturalezaContable
+
+detalle_asiento .. NaturalezaContable
 
 @enduml
