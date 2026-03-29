@@ -285,6 +285,7 @@ entity "DetalleNomina" as detalle_nomina {
 entity "Compra" as compra {
   * id_compra : BIGINT <<PK>>
   --
+  * id_gasto : BIGINT <<FK>>
   fecha_hora_compra : DATETIME
   id_proveedor : BIGINT <<FK>>
   total : DECIMAL(12,2)
@@ -494,7 +495,7 @@ cuenta_contable ||--o{ gasto_operativo
 cuenta_contable ||--o{ detalle_asiento
 asiento_contable ||--o{ detalle_asiento
 
-transporte ||--o{ gasto_operativo
+transporte ||--|{ gasto_operativo
 transporte ||--o{ gasto_transporte
 gasto_operativo ||--o{ gasto_transporte
 cita ||--o| realizacion_servicio
@@ -505,6 +506,7 @@ nomina ||--|{ detalle_nomina
 
 proveedor ||--o{ compra
 compra ||--|{ detalle_compra
+compra ||--|{ gasto_operativo
 
 transporte ||--o{ recepcion
 recepcion ||--|{ detalle_recepcion
