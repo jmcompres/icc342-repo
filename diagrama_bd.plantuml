@@ -65,6 +65,7 @@ enum UnidadMedida {
 enum CategoriaProducto {
   ALIMENTO
   MEDICAMENTO
+  MATERIA_PRIMA
   PRODUCTOS_VARIOS
   SERVICIO
 }
@@ -124,6 +125,8 @@ entity "Cliente" as cliente {
   * id_cliente : BIGINT <<PK>>
   --
   * id_persona : BIGINT <<FK>>
+  longitud : FLOAT(53)
+  latitud : FLOAT(53)
   id_tipo_cliente : BIGINT <<FK>>
 }
 
@@ -261,7 +264,6 @@ entity "DetalleAsiento" as detalle_asiento {
 entity "Nomina" as nomina {
   * id_nomina <<PK>>
   --
-  * id_reporte_nomina <<FK>>
   * id_empleado : BIGINT <<FK>>
   fecha_emision : DATE
   * periodo : PeriodoNomina
@@ -279,14 +281,6 @@ entity "DetalleNomina" as detalle_nomina {
   cantidad : DECIMAL(12,2)
 }
 
-entity "ReporteNomina" as reporte_nomina {
-  * id_reporte_nomina : BIGINT <<PK>>
-  --
-  fecha_reporte : DATE
-  periodo_descripcion : VARCHAR(100)
-  total_general_neto : DECIMAL(12,2)
-  total_general_retenciones : DECIMAL(12,2)
-}
 
 entity "Compra" as compra {
   * id_compra : BIGINT <<PK>>
@@ -357,6 +351,7 @@ entity "Venta" as venta {
   id_vendedor : BIGINT <<FK>>
   comprobante_fiscal : VARCHAR(50)
   aplica_descuento_venta : BOOLEAN
+  llevaDespacho : BOOLEAN
   fecha_vencimiento_pago : DATETIME
 }
 
@@ -507,7 +502,6 @@ realizacion_servicio ||--o{ gasto_realizacion_servicio
 gasto_operativo ||--o{ gasto_realizacion_servicio
 
 nomina ||--|{ detalle_nomina
-reporte_nomina ||--|{ nomina
 
 proveedor ||--o{ compra
 compra ||--|{ detalle_compra
