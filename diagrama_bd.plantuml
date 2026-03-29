@@ -25,11 +25,6 @@ enum TipoAnimal {
   PERRO
 }
 
-enum NaturalezaContable {
-  DEBITO
-  CREDITO
-}
-
 enum StatusEntidad {
   ACTIVO
   INACTIVO
@@ -41,8 +36,22 @@ enum PeriodoNomina {
 }
 
 enum TipoConcepto {
-  INGRESO
-  DESCUENTO
+  SALARIO_BASE
+  HORAS_EXTRAS
+  COMISIONES
+  BONIFICACIONES
+  PAGO_VACACIONES
+  SUELDO_13
+  DIETAS_Y_VIATICOS
+
+  SEGURO_FAMILIAR_SALUD
+  FONDO_PENSIONES
+  IMPUESTO_RENTA
+  ANTICIPO_SALARIO
+  PRESTAMO_EMPRESA
+  AUSENCIAS_NO_PAGADAS
+  EMBARGO_SALARIAL
+  OTRAS_DEDUCCIONES
 }
 
 enum MetodoPago {
@@ -76,6 +85,11 @@ enum EstadoTransporte {
   COMPLETADO
   FALLIDO
   CANCELADO
+}
+
+enum TipoGasto {
+  Fijo
+  Variable
 }
 
 ' =========================
@@ -218,19 +232,10 @@ entity "Transporte" as transporte {
   descuento : DECIMAL(12,2)
 }
 
-entity "CuentaContable" as cuenta_contable {
-  * id_cuenta : BIGINT <<PK>>
-  --
-  codigo_cuenta : VARCHAR(30) <<UK>>
-  nombre : VARCHAR(120)
-  * naturaleza : NaturalezaContable
-  tipo : VARCHAR(50)
-}
-
 entity "GastoOperativo" as gasto_operativo {
   * id_gasto : BIGINT <<PK>>
   --
-  id_cuenta : BIGINT <<FK>>
+  tipo_gasto: TipoGasto
   fecha : DATE
   monto : DECIMAL(12,2)
   comprobante_fiscal : VARCHAR(50)
@@ -243,22 +248,6 @@ entity "GastoTransporte" as gasto_transporte {
   id_transporte : BIGINT <<FK>>
   id_gasto : BIGINT <<FK>>
 
-}
-
-entity "AsientoContable" as asiento_contable {
-  * id_asiento : BIGINT <<PK>>
-  --
-  fecha : DATE
-  concepto : VARCHAR(255)
-}
-
-entity "DetalleAsiento" as detalle_asiento {
-  * id_detalle_asiento : BIGINT <<PK>>
-  --
-  id_asiento : BIGINT <<FK>>
-  id_cuenta : BIGINT <<FK>>
-  * tipo_movimiento : NaturalezaContable
-  monto : DECIMAL(12,2)
 }
 
 entity "Nomina" as nomina {
@@ -280,7 +269,6 @@ entity "DetalleNomina" as detalle_nomina {
   monto : DECIMAL(12,2)
   cantidad : DECIMAL(12,2)
 }
-
 
 entity "Compra" as compra {
   * id_compra : BIGINT <<PK>>
@@ -495,7 +483,6 @@ cuenta_contable ||--o{ gasto_operativo
 cuenta_contable ||--o{ detalle_asiento
 asiento_contable ||--o{ detalle_asiento
 
-transporte ||--|{ gasto_operativo
 transporte ||--o{ gasto_transporte
 gasto_operativo ||--o{ gasto_transporte
 cita ||--o| realizacion_servicio
@@ -536,7 +523,7 @@ lote ||--o{ detalle_dev_venta
 almacen ||--o{ detalle_dev_venta : almacen_entrada
 
 
-proveedor ||--o{ pago
+gasto_operativo ||--o{ pago
 
 mascota ||--o{ cita
 
@@ -554,6 +541,8 @@ proveedor .. StatusEntidad
 pago .. MetodoPago
 cobro .. MetodoPago
 
+gasto_operativo .. TipoGasto
+
 mascota .. TipoAnimal
 
 venta .. EstadoVenta
@@ -562,9 +551,5 @@ producto .. CategoriaProducto
 producto .. UnidadMedida
 
 transporte .. EstadoTransporte
-
-cuenta_contable .. NaturalezaContable
-
-detalle_asiento .. NaturalezaContable
 
 @enduml
