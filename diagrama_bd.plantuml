@@ -217,6 +217,8 @@ entity "RutaParada" as ruta_parada {
   --
   id_ruta : BIGINT <<FK>>
   parada : VARCHAR(150)
+  latitud : DECIMAL(6,3)
+  longitud : DECIMAL(6,3)
   orden : INT
 }
 
@@ -406,7 +408,8 @@ entity "DetalleDevVenta" as detalle_dev_venta {
 entity "Cobro" as cobro {
   * id_cobro : BIGINT <<PK>>
   --
-  id_cliente : BIGINT <<FK>>
+  * id_cliente : BIGINT <<FK>>
+  * id_venta : BIGINT <<FK>>
   monto_total : DECIMAL(12,2)
   * metodo_pago : MetodoPago
 }
@@ -415,7 +418,7 @@ entity "Cobro" as cobro {
 entity "Pago" as pago {
   * id_pago : BIGINT <<PK>>
   --
-  id_proveedor : BIGINT <<FK>>
+  * id_gasto : BIGINT <<FK>>
   monto_total : DECIMAL(12,2)
   * metodo_pago : MetodoPago
 }
@@ -462,6 +465,8 @@ cliente ||--o{ nota_credito
 cliente ||--o{ cobro
 cliente ||--o{ devolucion_venta
 
+venta ||--o{ cobro
+
 empleado ||--o{ venta : vendedor
 empleado ||--o{ cita : veterinario
 empleado ||--o{ devolucion_venta
@@ -478,10 +483,6 @@ lote ||--|{ inventario
 ruta ||--|{ ruta_parada
 vehiculo ||--o{ transporte
 ruta ||--o{ transporte
-
-cuenta_contable ||--o{ gasto_operativo
-cuenta_contable ||--o{ detalle_asiento
-asiento_contable ||--o{ detalle_asiento
 
 transporte ||--o{ gasto_transporte
 gasto_operativo ||--o{ gasto_transporte
